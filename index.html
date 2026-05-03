@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lincoln Apps — Digital Craftsmanship</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --gold: #c9a84c;
+    --gold-light: #e8d08a;
+    --charcoal: #1e1e1e;
+    --muted: #7a7060;
+    --white: #fdfaf4;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.4rem 4rem;
+    background: linear-gradient(to bottom, rgba(13,13,13,0.95), transparent);
+    backdrop-filter: blur(4px);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--paper);
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--gold); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-ring {
+    position: absolute;
+    right: -12vw;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 70vw;
+    height: 70vw;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.12);
+    animation: ringPulse 6s ease-in-out infinite;
+  }
+
+  .hero-bg-ring::before {
+    content: '';
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.08);
+  }
+
+  .hero-bg-ring::after {
+    content: '';
+    position: absolute;
+    inset: 18%;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.05);
+  }
+
+  @keyframes ringPulse {
+    0%, 100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    50% { transform: translateY(-50%) scale(1.03); opacity: 0.6; }
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    max-width: 14ch;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.4s forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 38ch;
+    line-height: 1.7;
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.6s forwards;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1.2rem;
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.8s forwards;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--ink);
+    padding: 0.9rem 2.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--paper);
+    padding: 0.9rem 2.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid rgba(245,240,232,0.25);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 3rem;
+    left: 4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    opacity: 0;
+    animation: fadeUp 1s 1.2s forwards;
+  }
+
+  .hero-scroll span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .scroll-line {
+    width: 60px;
+    height: 1px;
+    background: var(--muted);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--gold);
+    animation: scrollSlide 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollSlide {
+    0% { left: -100%; }
+    50% { left: 0; }
+    100% { left: 100%; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION COMMON ── */
+  section { padding: 7rem 4rem; }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: calc(100% - 8rem);
+    margin: 0 4rem;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
+  }
+
+  /* ── ABOUT / STATS ── */
+  .about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .about-text p {
+    color: var(--muted);
+    line-height: 1.8;
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .stat-card {
+    background: var(--charcoal);
+    padding: 2.5rem 2rem;
+    position: relative;
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 2rem; right: 2rem;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .stat-card:hover::after { transform: scaleX(1); }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+
+  /* ── WORK / PORTFOLIO ── */
+  .work-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--charcoal);
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+  }
+
+  .project-card:nth-child(1) { grid-column: span 2; }
+
+  .project-thumb {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    position: relative;
+  }
+
+  /* Placeholder browser mockup inside card */
+  .project-thumb-inner {
+    width: 100%;
+    aspect-ratio: 16/10;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.6s ease;
+  }
+
+  .project-card:hover .project-thumb-inner { transform: scale(1.04); }
+
+  .mock-browser {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mock-bar {
+    background: #2a2a2a;
+    padding: 0.5rem 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .mock-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .mock-url {
+    flex: 1;
+    background: #1a1a1a;
+    border-radius: 3px;
+    height: 14px;
+    margin-left: 0.5rem;
+  }
+
+  .mock-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Individual card colorways */
+  .card-1 .mock-content { background: linear-gradient(135deg, #1a1a2e, #0f3460); color: #6ec6f5; }
+  .card-2 .mock-content { background: linear-gradient(135deg, #1a1a1a, #2d1b0e); color: #c9a84c; }
+  .card-3 .mock-content { background: linear-gradient(135deg, #0d1f0d, #1a3a1a); color: #7bcf87; }
+  .card-4 .mock-content { background: linear-gradient(135deg, #1f0d1a, #3a1a2e); color: #cf7ba8; }
+  .card-5 .mock-content { background: linear-gradient(135deg, #1a1a1a, #2a2a3a); color: #a0a0cf; }
+
+  .project-info {
+    padding: 1.5rem;
+    position: relative;
+  }
+
+  .project-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .project-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--paper);
+  }
+
+  .project-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    line-height: 1.6;
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  .project-card:hover .project-link {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .project-link svg { transition: transform 0.2s; }
+  .project-card:hover .project-link svg { transform: translateX(4px); }
+
+  /* ── SERVICES ── */
+  .services-section { background: var(--charcoal); }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(201,168,76,0.08);
+    margin-top: 4rem;
+    border: 1px solid rgba(201,168,76,0.08);
+  }
+
+  .service-item {
+    background: var(--charcoal);
+    padding: 3rem 2.5rem;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px;
+    height: 0;
+    background: var(--gold);
+    transition: height 0.4s ease;
+  }
+
+  .service-item:hover::before { height: 100%; }
+  .service-item:hover { background: #222; }
+
+  .service-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: rgba(201,168,76,0.12);
+    line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  .service-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--paper);
+    margin-bottom: 0.8rem;
+  }
+
+  .service-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── CONTACT ── */
+  .contact-wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .contact-wrap .section-label { justify-content: center; display: flex; }
+  .contact-email {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    color: var(--gold);
+    text-decoration: none;
+    display: block;
+    margin: 2rem 0;
+    letter-spacing: -0.02em;
+    transition: opacity 0.2s;
+  }
+  .contact-email:hover { opacity: 0.7; }
+
+  .contact-sub {
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+
+  footer p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  footer a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  footer a:hover { color: var(--gold); }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 1.2rem 2rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 2rem; }
+    .divider { width: calc(100% - 4rem); margin: 0 2rem; }
+    .hero { padding: 7rem 2rem 4rem; }
+    .hero-scroll { left: 2rem; }
+    .about { grid-template-columns: 1fr; gap: 3rem; }
+    .work-grid { grid-template-columns: 1fr; }
+    .project-card:nth-child(1) { grid-column: span 1; }
+    .services-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><span>Lincoln</span> Apps</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg-ring"></div>
+  <p class="hero-eyebrow">Software Company · Est. 2024</p>
+  <h1 class="hero-title">We Build <em>Digital</em> Experiences</h1>
+  <p class="hero-sub">Lincoln Apps crafts high-performance websites and software that drives results — elegant, fast, and built to last.</p>
+  <div class="hero-cta">
+    <a href="#work" class="btn-primary">View Our Work</a>
+    <a href="#contact" class="btn-outline">Start a Project</a>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about reveal">
+    <div class="about-text">
+      <p class="section-label">About Us</p>
+      <h2 class="section-title">Precision-Crafted Software for Modern Business</h2>
+      <p>At Lincoln Apps, we believe great software is invisible — it just works. We combine strategic thinking with technical excellence to deliver websites and applications that are as functional as they are beautiful.</p>
+      <p style="margin-top: 1rem;">From concept to deployment, we own every detail so you can focus on what you do best.</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">30+</div>
+        <div class="stat-label">Projects Delivered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Client Satisfaction</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">5★</div>
+        <div class="stat-label">Average Rating</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">24h</div>
+        <div class="stat-label">Response Time</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WORK / PORTFOLIO -->
+<section id="work">
+  <div class="work-header reveal">
+    <div>
+      <p class="section-label">Portfolio</p>
+      <h2 class="section-title">Selected Work</h2>
+    </div>
+    <a href="#contact" class="btn-outline">Work With Us</a>
+  </div>
+
+  <div class="work-grid">
+
+    <!-- Card 1 — wide: Lincorn Samuel Developer Portfolio -->
+    <a href="https://lincornsamuel.netlify.app/" target="_blank" rel="noopener" class="project-card card-1 reveal">
+      <div class="project-thumb-inner">
+        <div class="mock-browser">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f56"></div>
+            <div class="mock-dot" style="background:#ffbd2e"></div>
+            <div class="mock-dot" style="background:#27c93f"></div>
+            <div class="mock-url"></div>
+          </div>
+          <div class="mock-content">Lincorn Samuel</div>
+        </div>
+      </div>
+      <div class="project-info">
+        <p class="project-tag">Portfolio · Developer</p>
+        <h3 class="project-name">Lincorn Samuel</h3>
+        <p class="project-desc">Personal developer portfolio showcasing projects, skills, and professional experience with a clean, modern design.</p>
+        <span class="project-link">
+          Visit Site
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- Card 2: Voice Artist Portfolio -->
+    <a href="https://muhia8943.github.io/Kinyanjui-portfolio.github.io/" target="_blank" rel="noopener" class="project-card card-2 reveal">
+      <div class="project-thumb-inner">
+        <div class="mock-browser">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f56"></div>
+            <div class="mock-dot" style="background:#ffbd2e"></div>
+            <div class="mock-dot" style="background:#27c93f"></div>
+            <div class="mock-url"></div>
+          </div>
+          <div class="mock-content">Kinyanjui — Voice</div>
+        </div>
+      </div>
+      <div class="project-info">
+        <p class="project-tag">Portfolio · Voice Artist</p>
+        <h3 class="project-name">Kinyanjui Voice Artist</h3>
+        <p class="project-desc">Elegant portfolio for a professional voice artist, featuring audio demos, services, and client booking.</p>
+        <span class="project-link">
+          Visit Site
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- Card 3: Little Happy Angels Daycare -->
+    <a href="https://littlehappyangels.netlify.app/" target="_blank" rel="noopener" class="project-card card-3 reveal">
+      <div class="project-thumb-inner">
+        <div class="mock-browser">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f56"></div>
+            <div class="mock-dot" style="background:#ffbd2e"></div>
+            <div class="mock-dot" style="background:#27c93f"></div>
+            <div class="mock-url"></div>
+          </div>
+          <div class="mock-content">Little Happy Angels</div>
+        </div>
+      </div>
+      <div class="project-info">
+        <p class="project-tag">Education · Daycare</p>
+        <h3 class="project-name">Little Happy Angels</h3>
+        <p class="project-desc">Warm, welcoming website for a daycare centre — featuring programmes, gallery, enrolment info, and contact.</p>
+        <span class="project-link">
+          Visit Site
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- Card 4: BomaYako Interior Design -->
+    <a href="https://muhia8943.github.io/BomaYako.github.io/" target="_blank" rel="noopener" class="project-card card-4 reveal">
+      <div class="project-thumb-inner">
+        <div class="mock-browser">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f56"></div>
+            <div class="mock-dot" style="background:#ffbd2e"></div>
+            <div class="mock-dot" style="background:#27c93f"></div>
+            <div class="mock-url"></div>
+          </div>
+          <div class="mock-content">BomaYako Interiors</div>
+        </div>
+      </div>
+      <div class="project-info">
+        <p class="project-tag">Interior Design · Lifestyle</p>
+        <h3 class="project-name">BomaYako Interiors</h3>
+        <p class="project-desc">Stylish interior design company website with portfolio showcase, services, and client enquiry system.</p>
+        <span class="project-link">
+          Visit Site
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- Card 5: Sam's Portfolio -->
+    <a href="https://curious-gnome-6d6e81.netlify.app/" target="_blank" rel="noopener" class="project-card card-5 reveal">
+      <div class="project-thumb-inner">
+        <div class="mock-browser">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f56"></div>
+            <div class="mock-dot" style="background:#ffbd2e"></div>
+            <div class="mock-dot" style="background:#27c93f"></div>
+            <div class="mock-url"></div>
+          </div>
+          <div class="mock-content">Sam's Portfolio</div>
+        </div>
+      </div>
+      <div class="project-info">
+        <p class="project-tag">Portfolio · Creative</p>
+        <h3 class="project-name">Sam's Portfolio</h3>
+        <p class="project-desc">Creative personal portfolio built to highlight Sam's work, skills, and professional story in a compelling layout.</p>
+        <span class="project-link">
+          Visit Site
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SERVICES -->
+<section class="services-section" id="services">
+  <div class="reveal">
+    <p class="section-label">What We Do</p>
+    <h2 class="section-title">Our Services</h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-item reveal">
+      <div class="service-num">01</div>
+      <h3 class="service-name">Web Design & Development</h3>
+      <p class="service-desc">Custom, responsive websites built from the ground up — tailored to your brand and optimised for performance.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-num">02</div>
+      <h3 class="service-name">Web Applications</h3>
+      <p class="service-desc">Full-stack apps with dashboards, user auth, APIs, and admin panels — built to scale with your business.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-num">03</div>
+      <h3 class="service-name">E-commerce Solutions</h3>
+      <p class="service-desc">Online stores that convert. Seamless checkout, product management, and payment gateway integrations.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-num">04</div>
+      <h3 class="service-name">SEO & Performance</h3>
+      <p class="service-desc">Speed optimisation, Core Web Vitals tuning, and search engine visibility — so customers find you first.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-num">05</div>
+      <h3 class="service-name">Maintenance & Support</h3>
+      <p class="service-desc">Ongoing updates, security patches, and technical support to keep your site running smoothly.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-num">06</div>
+      <h3 class="service-name">UI/UX Consulting</h3>
+      <p class="service-desc">User experience audits and redesigns that reduce friction and turn visitors into loyal customers.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-wrap reveal">
+    <p class="section-label">Get In Touch</p>
+    <h2 class="section-title">Have a Project in Mind?</h2>
+    <p class="contact-sub">We'd love to hear about your next idea. Whether you're starting from scratch or need a hand with an existing product, let's talk.</p>
+    <a href="mailto:lincornmuhia@gmail.com" class="contact-email">lincornmuhia@gmail.com</a>
+    <a href="tel:+254 112958889" class="contact-phone" class="contact-email">+254 112958889</a>
+    <a href="mailto:lincornmuhia@gmail.com" class="btn-primary">Start a Conversation</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2024 Lincoln Apps. All rights reserved.</p>
+  <div style="display:flex;gap:2rem;">
+    <a href="#">Twitter</a>
+    <a href="#">LinkedIn</a>
+    <a href="#">GitHub</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
